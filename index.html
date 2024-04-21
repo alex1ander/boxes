@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVD Screensaver</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        .box {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+        }
+        .red {
+            background-color: red;
+        }
+        .green {
+            background-color: green;
+        }
+        .blue {
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+
+
+    <script>
+        var id = 0;
+         function generateElements(className, count) {
+            for (var i = 0; i < count; i++) {
+                var div = document.createElement('div');
+                div.className = 'box ' + className;
+                id += 1;
+                div.id = id;
+                document.body.appendChild(div);
+            }
+        }
+
+        // Генерация элементов различных цветов с указанным количеством
+        generateElements('green', 10);
+        generateElements('blue', 10);
+        generateElements('red', 10);
+
+
+
+        function moveBox(box) {
+            var posX = Math.random() * (window.innerWidth - box.offsetWidth);
+            var posY = Math.random() * (window.innerHeight - box.offsetHeight);
+            var speedX = (Math.random() - 0.5) * 5; // Скорость по X
+            var speedY = (Math.random() - 0.5) * 5; // Скорость по Y
+
+            updatePosition(box, posX, posY, speedX, speedY);
+        }
+
+        function updatePosition(box, posX, posY, speedX, speedY) {
+            posX += speedX;
+            posY += speedY;
+
+            if (posX < 0 || posX > window.innerWidth - box.offsetWidth) {
+                speedX *= -1;
+            }
+            if (posY < 0 || posY > window.innerHeight - box.offsetHeight) {
+                speedY *= -1;
+            }
+
+            box.style.left = posX + 'px';
+            box.style.top = posY + 'px';
+
+            requestAnimationFrame(function() {
+                updatePosition(box, posX, posY, speedX, speedY);
+            });
+        }
+
+        var boxes = document.querySelectorAll('.box');
+        boxes.forEach(function(box) {
+            moveBox(box);
+        });
+
+
+
+        var objects = [];
+        for (var i = 1; ; i++) {
+            var obj = document.getElementById(i.toString()); // Получаем объект по id
+
+            // Проверяем, существует ли объект с указанным id
+            if (obj !== null) {
+                objects.push(obj); // Добавляем объект в массив
+            } else {
+                break; // Если объект не существует, завершаем цикл
+            }
+        }
+
+        
+        // Функция для проверки пересечений
+        function checkIntersections() {
+            // Создаем массив для хранения информации о пересечениях
+            var intersections = [];
+
+            // Проходим по всем парам объектов в массиве objects и проверяем пересечения
+            for (var i = 0; i < objects.length; i++) {
+                for (var j = 0; j < objects.length; j++) {
+                    var obj1 = objects[i].getBoundingClientRect();
+                    var obj2 = objects[j].getBoundingClientRect();
+                    // Проверяем пересечение между obj1 и obj2
+                    if (obj1.right > obj2.left && 
+                        obj1.left < obj2.right && 
+                        obj1.bottom > obj2.top && 
+                        obj1.top < obj2.bottom) {
+                        // Если пересечение есть, добавляем информацию о нем в массив intersections
+                        intersections.push({ obj1: objects[i], obj2: objects[j] });
+                    }
+                }
+            }
+
+            // Проходим по массиву intersections и выполняем нужные действия
+            intersections.forEach(function(intersection) {
+                var obj1 = intersection.obj1;
+                var obj2 = intersection.obj2;
+                if (obj1.classList[1] !== obj2.classList[1]) {
+                    
+                    if(obj1.classList[1] === 'red' && obj2.classList[1] === 'blue'){
+                        obj2.classList.remove(obj2.classList[1]);
+                        obj2.classList.add('red');
+                    }
+                    if(obj1.classList[1] === 'blue' && obj2.classList[1] === 'green'){
+                        obj2.classList.remove(obj2.classList[1]);
+                        obj2.classList.add('blue');
+                    }
+                    if(obj1.classList[1] === 'green' && obj2.classList[1] === 'red'){
+                        obj2.classList.remove(obj2.classList[1]);
+                        obj2.classList.add('green');
+                    }
+
+                }
+            });
+
+            // Если массив intersections пустой, значит, пересечений нет
+            if (intersections.length === 0) {
+                console.log('Нет пересекающихся объектов');
+            }
+        }
+
+        // Запускаем функцию checkIntersections() каждые 0.1 секунды
+        setInterval(checkIntersections, 100);
+
+
+
+    </script>
+</body>
+</html>
